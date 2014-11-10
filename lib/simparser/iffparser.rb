@@ -10,9 +10,9 @@ class IffParser
 		while !contents.nil? && contents.size > 0 do
 			new_obj = {}
 			new_obj['type'] = contents[0..3]
-			size = hex_to_int(contents[4..7])
+			size = Utils::hex_to_int(contents[4..7])
 			new_obj['size'] = size - 76
-			new_obj['id'] = hex_to_int(contents[8..9])
+			new_obj['id'] = Utils::hex_to_int(contents[8..9])
 			new_obj['data'] = contents[76..(size - 1)]
 			objects.push(new_obj)
 			contents = contents[size..-1]

@@ -1,12 +1,17 @@
 #this class is for reading/manipulating data in neighborhood.iff
 
+require_relative 'neighbor'
+require_relative 'family'
 module SimParser
 class Neighborhood
   attr_reader :neighbors, :families
 	def initialize(path)
 		objects = IffParser::parseiff(path)
+		
+		@families = []
 		objects.each do |obj|
 		  @neighbors = parse_NBRS(obj) if obj['type'] == 'NBRS'
+		  @families.push(parse_FAMI(obj)) if obj['type'] == 'FAMI'
 		end
 	end
 
@@ -59,19 +64,20 @@ class Neighborhood
 
 	#parse_FAMI
 	#params: fami obj
-	#returns: hash: {house_number, cash}
+	#returns: Family object
 	def parse_FAMI(fami)
-		obj = {}
+		family = Family.new
 		data = fami['data']
-		obj['house_number'] = Utils::hex_to_int(data[12..15], Utils::LITTLE_ENDIAN)
-		obj['cash'] = Utils::hex_to_int(data[20..23], Utils::LITTLE_ENDIAN)
-		return obj
+		family.id = fami['id']
+		family.house_number = Utils::hex_to_int(data[12..15], Utils::LITTLE_ENDIAN)
+		family.cash = Utils::hex_to_int(data[20..23], Utils::LITTLE_ENDIAN)
+		return family
 	end
 
 	#dont think the first 24 bytes matter
 	#parse_NBRS
 	#params: nbrs obj
-	#returns: Array of characters
+	#returns: Array of neighbors
 	def parse_NBRS(nbrs)
 		neighbors = []
 		data = nbrs['data'][24..-1]
@@ -85,18 +91,18 @@ class Neighborhood
 
 	#parse_neighbor
 	#params: char from NBRS obj
-	#returns: hash {name, is_npc, skills{}, personality{}, career, age, skin_tone, gender, relationship_id, 		#unknown_id}, remaining string
+	#returns: Neighbor object, remaining string
 	def parse_neighbor(char)
 		neighbor = Neighbor.new
-		name = ''
+		id = ''
 		while !char.nil? && char.size > 0 && Utils::hex_to_int(char[0]) != 0 do
-			name = name + char[0].to_s
+			id = id + char[0].to_s
 			char = char[1..-1]
 		end
 		return [nil,''] if char.empty?
 
-		neighbor.name = name
-		if is_npc(name)
+		neighbor.id = id
+		if is_npc(id)
 			neighbor.is_npc = true
 			f_start = 0
 			ffs_in_a_row = 0
@@ -188,7 +194,7 @@ class Neighborhood
 		num_rels_left = Utils::hex_to_int(hex_string[0..3], Utils::LITTLE_ENDIAN)
 
 		if num_rels_left == 0
-			ending = find_end_of(hex_string, '0100000004000000')
+			ending = Utils::find_end_of(hex_string, '0100000004000000')
 			return [[], hex_string[ending..-1]]
 		end
 
@@ -209,10 +215,10 @@ class Neighborhood
 	end
 
 	#is_npc
-	#params: string name
+	#params: string id
 	#returns: bool whether or not char is an npc
-	def is_npc(name)
-		!name.start_with?('user')
+	def is_npc(id)
+		!id.start_with?('user')
 	end
 end
 end

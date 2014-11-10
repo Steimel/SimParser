@@ -1,5 +1,3 @@
-
-
 module SimParser
 class Utils
   LITTLE_ENDIAN = 0

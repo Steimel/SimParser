@@ -1,8 +1,6 @@
-#this class is for reading/manipulating data in neighborhood.iff
-
 module SimParser
 class Neighbor
-  attr_accessor :name,
+  attr_accessor :id,
                 :is_npc, 
                 :skills, 
                 :personality,
@@ -17,4 +15,5 @@ class Neighbor
    def initialize()
    
    end
+end
 end
