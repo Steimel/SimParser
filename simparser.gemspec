@@ -6,8 +6,8 @@ Gem::Specification.new do |s|
 	s.description	= 'Provides an API for viewing and manipulating .IFF files from The Sims(TM) Deluxe Edition'
 	s.authors	= ['Tommy Steimel']
 	s.email		= 'trs3ww@virginia.edu'
-	s.files		= ['lib/simparser.rb']
+	s.files		= Dir["README.md", "LICENSE.md", "lib/**/*.rb"]
 	s.require_paths = ['lib']
-	s.homepage	= 'http://github.com/Steimel'
+	s.homepage	= 'https://github.com/Steimel/SimParser'
 	s.license	= 'MIT'
 end
