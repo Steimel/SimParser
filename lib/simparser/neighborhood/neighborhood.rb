@@ -11,7 +11,8 @@ class Neighborhood
 		@families = []
 		objects.each do |obj|
 		  @neighbors = parse_NBRS(obj) if obj['type'] == 'NBRS'
-		  @families.push(parse_FAMI(obj)) if obj['type'] == 'FAMI'
+		  parse_FAMI(obj) if obj['type'] == 'FAMI'
+		  parse_FAMs(obj) if obj['type'] == 'FAMs'
 		end
 	end
 
@@ -66,12 +67,38 @@ class Neighborhood
 	#params: fami obj
 	#returns: Family object
 	def parse_FAMI(fami)
-		family = Family.new
+		family = nil
+		@families.each do |fam|
+		  family = fam if fam.id == fami['id']
+		end
+		if family.nil?
+		  family = Family.new
+		  family.id = fami['id']
+		  @families.push(family)
+		end
 		data = fami['data']
-		family.id = fami['id']
 		family.house_number = Utils::hex_to_int(data[12..15], Utils::LITTLE_ENDIAN)
 		family.cash = Utils::hex_to_int(data[20..23], Utils::LITTLE_ENDIAN)
 		return family
+	end
+	
+	def parse_FAMs(fams)
+	  family = nil
+		@families.each do |fam|
+		  family = fam if fam.id == fams['id']
+		end
+		if family.nil?
+		  family = Family.new
+		  family.id = fams['id']
+		  @families.push(family)
+		end
+		data = fams['data'][5..-1] #skip first 5 bytes
+		name = ''
+		while !data.nil? && data.size > 0 && Utils::hex_to_int(data[0]) != 0 do
+			name = name + data[0].to_s
+			data = data[1..-1]
+		end
+		family.last_name = name
 	end
 
 	#dont think the first 24 bytes matter
@@ -142,8 +169,7 @@ class Neighborhood
 		skills['logic'] = Utils::hex_to_int(char[45..46], Utils::LITTLE_ENDIAN)
 		neighbor.skills = skills
 
-		char = char[48..-1]
-		char = char[52..-1]
+		char = char[100..-1] #skip 100 bytes
 
 		interests = {}
 		interests['travel/toys'] = Utils::hex_to_int(char[1..2], Utils::LITTLE_ENDIAN)

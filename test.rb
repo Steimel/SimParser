@@ -35,7 +35,11 @@ while true
    restart = false
    while true
      current_set.each_with_index do |obj, index|
-       puts index.to_s + ':' + obj.id.to_s
+       if obj.class.to_s == 'SimParser::Family'
+         puts index.to_s + ':' + obj.last_name.to_s
+       else
+         puts index.to_s + ':' + obj.id.to_s
+       end
      end
      print 'Enter index of object to view (q=quit, -1=restart):'
      input = STDIN.gets.chomp
