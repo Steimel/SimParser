@@ -1,6 +1,7 @@
 module SimParser
 class Neighbor
   attr_accessor :id,
+                :name,
                 :is_npc, 
                 :skills, 
                 :personality,

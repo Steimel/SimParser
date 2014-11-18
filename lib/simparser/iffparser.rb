@@ -13,6 +13,7 @@ class IffParser
       size = Utils::hex_to_int(contents[4..7])
       new_obj['size'] = size - 76
       new_obj['id'] = Utils::hex_to_int(contents[8..9])
+      new_obj['header'] = contents[10..75]
       new_obj['data'] = contents[76..(size - 1)]
       objects.push(new_obj)
       contents = contents[size..-1]
